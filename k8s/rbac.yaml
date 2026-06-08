@@ -1,0 +1,23 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: secure-app-read-config
+  namespace: secure-workloads
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: secure-app-read-config-binding
+  namespace: secure-workloads
+subjects:
+  - kind: ServiceAccount
+    name: secure-app-sa
+    namespace: secure-workloads
+roleRef:
+  kind: Role
+  name: secure-app-read-config
+  apiGroup: rbac.authorization.k8s.io
