@@ -16,7 +16,16 @@ Create a workload baseline that reduces Kubernetes attack surface before product
 | Filesystem | Read-only root filesystem |
 | Seccomp | RuntimeDefault profile |
 | Network | NetworkPolicy restricts ingress and egress |
+| Supply chain | Workload image pinned to an immutable SHA-256 digest |
 | Reliability | Resource requests, limits, and readiness probe |
+
+## Immutable image references
+
+Mutable tags such as `latest` are convenient for development but are a weak production deployment boundary: the same manifest can resolve to different image bytes at different times. This makes rollback, provenance review, and incident reconstruction less reliable.
+
+The example Deployment therefore uses the OCI digest form `repository@sha256:<digest>`. The checked-in digest is illustrative rather than a claim that the image exists in a registry. In a real delivery pipeline, the trusted build stage should publish the image, capture the registry-reported digest, complete required vulnerability/signature or provenance checks, and update the deployment artifact with that exact digest before promotion.
+
+The manifest test enforces the invariant that the workload cannot silently drift back to `:latest` or another tag-only reference.
 
 ## Employer-facing explanation
 
