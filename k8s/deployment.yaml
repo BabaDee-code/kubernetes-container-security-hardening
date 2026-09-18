@@ -20,7 +20,9 @@ spec:
           type: RuntimeDefault
       containers:
         - name: secure-app
-          image: secure-app:latest
+          # Example immutable reference. Production CI should replace this digest
+          # with the digest emitted by the trusted build/signing pipeline.
+          image: secure-app@sha256:8f3c7a2e11d40f77c30ec9d835ec1bc49b75bce7ab42bb8aa9e293ee6c0f4102
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
