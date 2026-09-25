@@ -35,3 +35,23 @@ def test_namespace_enforces_restricted_pod_security():
 def test_network_policy_defines_ingress_and_egress():
     policy = load_yaml_documents("k8s/network-policy.yaml")[0]
     assert set(policy["spec"]["policyTypes"]) == {"Ingress", "Egress"}
+
+
+def test_dns_egress_is_restricted_to_cluster_dns_pods():
+    policy = load_yaml_documents("k8s/network-policy.yaml")[0]
+    egress = policy["spec"]["egress"]
+
+    assert len(egress) == 1
+    destinations = egress[0]["to"]
+    assert len(destinations) == 1
+
+    destination = destinations[0]
+    assert destination["namespaceSelector"]["matchLabels"] == {
+        "kubernetes.io/metadata.name": "kube-system"
+    }
+    assert destination["podSelector"]["matchLabels"] == {"k8s-app": "kube-dns"}
+
+    allowed_ports = {
+        (entry["protocol"], entry["port"]) for entry in egress[0]["ports"]
+    }
+    assert allowed_ports == {("UDP", 53), ("TCP", 53)}
